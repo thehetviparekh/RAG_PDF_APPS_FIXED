@@ -27,8 +27,8 @@ if uploaded_file:
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     docs = text_splitter.split_documents(documents)
 
-    # Embeddings
-    embeddings = OpenAIEmbeddings()
+    # Embeddings — final fix, with explicit key
+    embeddings = OpenAIEmbeddings(openai_api_key=os.environ["OPENAI_API_KEY"])
 
     # Vectorstore
     vectorstore = Chroma.from_documents(docs, embedding=embeddings)
@@ -37,7 +37,7 @@ if uploaded_file:
     retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
 
     # LLM
-    llm = ChatOpenAI(model_name="gpt-4o", temperature=0)
+    llm = ChatOpenAI(model_name="gpt-4o", temperature=0, openai_api_key=os.environ["OPENAI_API_KEY"])
 
     # QA chain
     qa_chain = RetrievalQA.from_chain_type(
