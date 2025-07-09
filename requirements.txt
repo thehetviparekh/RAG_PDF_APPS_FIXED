@@ -1,11 +1,7 @@
 streamlit
-langchain==0.1.14
-langchain-community==0.0.21
-faiss-cpu
+langchain
+langchain-community
 openai
 PyPDF2
 pymupdf
 pypdf
-protobuf==4.25.1
-numpy==1.23.5
-typing-extensions
