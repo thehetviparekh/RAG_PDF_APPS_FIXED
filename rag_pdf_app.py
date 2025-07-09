@@ -23,23 +23,28 @@ if uploaded_file:
     question = st.text_input("Ask a question:")
 
     if question:
-        # 🟢 Improved: Split on single newlines for resumes
+        # Split on single newlines for resumes
         paragraphs = all_text.split("\n")
-        best_chunk = ""
+        best_index = -1
         max_matches = 0
 
         # Simple keyword-based search
         question_words = question.lower().split()
 
-        for para in paragraphs:
+        for i, para in enumerate(paragraphs):
             matches = sum(1 for word in question_words if word in para.lower())
             if matches > max_matches:
                 max_matches = matches
-                best_chunk = para
+                best_index = i
 
-        if best_chunk.strip() and max_matches > 0:
-            st.success("Answer (best matched line):")
-            st.write(best_chunk.strip())
+        if best_index != -1 and max_matches > 0:
+            # Build a mini paragraph around the best line (2 before and 2 after)
+            start = max(best_index - 2, 0)
+            end = min(best_index + 3, len(paragraphs))
+            context_snippet = "\n".join(paragraphs[start:end]).strip()
+
+            st.success("Answer (context snippet):")
+            st.write(context_snippet)
         else:
             st.error("Sorry, could not find relevant information in the PDF.")
 
