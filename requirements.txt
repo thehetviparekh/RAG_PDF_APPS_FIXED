@@ -1,7 +1,7 @@
 streamlit
 langchain==0.1.14
 langchain-community==0.0.21
-chromadb==0.4.22
+faiss-cpu
 openai
 PyPDF2
 pymupdf
