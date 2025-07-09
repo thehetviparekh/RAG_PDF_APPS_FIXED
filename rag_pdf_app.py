@@ -1,16 +1,9 @@
 import streamlit as st
-from langchain_community.document_loaders import PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import DocArrayInMemorySearch
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import RetrievalQA
+import PyPDF2
 import tempfile
-import os
 
-st.set_page_config(page_title="RAG PDF QA", layout="wide")
-st.title("📄💬 High Accuracy PDF QA App")
-st.write("✅ App started! Upload your PDF and ask your question.")
+st.set_page_config(page_title="PDF QA Demo", layout="wide")
+st.title("📄💬 Simple PDF Q&A Demo (No API)")
 
 uploaded_file = st.file_uploader("Upload a PDF file", type="pdf")
 
@@ -19,44 +12,35 @@ if uploaded_file:
         tmp_file.write(uploaded_file.read())
         tmp_path = tmp_file.name
 
-    # Load PDF
-    loader = PyPDFLoader(tmp_path)
-    documents = loader.load()
+    # Read PDF text
+    pdf_reader = PyPDF2.PdfReader(tmp_path)
+    all_text = ""
+    for page in pdf_reader.pages:
+        all_text += page.extract_text() or ""
 
-    # Split into chunks
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    docs = text_splitter.split_documents(documents)
+    st.subheader("PDF uploaded successfully! You can now ask a question.")
 
-    # Embeddings
-    embeddings = OpenAIEmbeddings(openai_api_key=os.environ["OPENAI_API_KEY"])
-
-    # In-memory vector store
-    vectorstore = DocArrayInMemorySearch.from_documents(docs, embedding=embeddings)
-
-    # Retriever
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
-
-    # LLM
-    llm = ChatOpenAI(model_name="gpt-4o", temperature=0, openai_api_key=os.environ["OPENAI_API_KEY"])
-
-    # QA chain
-    qa_chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=retriever,
-        return_source_documents=False
-    )
-
-    question = st.text_input("Ask a question about this PDF:")
+    question = st.text_input("Ask a question:")
 
     if question:
-        with st.spinner("Generating answer..."):
-            result = qa_chain({"query": question})
-            answer = result["result"]
+        # Break PDF text into paragraphs (simulate chunks)
+        paragraphs = all_text.split("\n\n")
+        best_chunk = ""
+        max_matches = 0
 
-            if "I don't know" in answer or "not found" in answer.lower():
-                answer = "Information not found in the document."
+        # Simple keyword-based search
+        question_words = question.lower().split()
 
-            st.success(answer)
+        for para in paragraphs:
+            matches = sum(1 for word in question_words if word in para.lower())
+            if matches > max_matches:
+                max_matches = matches
+                best_chunk = para
 
-    os.remove(tmp_path)
+        if best_chunk.strip() and max_matches > 0:
+            st.success("Answer (best matched paragraph):")
+            st.write(best_chunk.strip())
+        else:
+            st.error("Sorry, could not find relevant information in the PDF.")
+
+    st.download_button("Download Full PDF Text", all_text, file_name="extracted_text.txt")
