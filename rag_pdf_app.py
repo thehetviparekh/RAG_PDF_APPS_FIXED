@@ -23,8 +23,8 @@ if uploaded_file:
     question = st.text_input("Ask a question:")
 
     if question:
-        # Break PDF text into paragraphs (simulate chunks)
-        paragraphs = all_text.split("\n\n")
+        # 🟢 Improved: Split on single newlines for resumes
+        paragraphs = all_text.split("\n")
         best_chunk = ""
         max_matches = 0
 
@@ -38,7 +38,7 @@ if uploaded_file:
                 best_chunk = para
 
         if best_chunk.strip() and max_matches > 0:
-            st.success("Answer (best matched paragraph):")
+            st.success("Answer (best matched line):")
             st.write(best_chunk.strip())
         else:
             st.error("Sorry, could not find relevant information in the PDF.")
