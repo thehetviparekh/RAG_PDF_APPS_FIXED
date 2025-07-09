@@ -1,8 +1,9 @@
 streamlit
 langchain
 langchain-community
-chromadb
+chromadb==0.4.22
 openai
 PyPDF2
 pymupdf
 pypdf
+protobuf==4.25.1
