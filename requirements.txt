@@ -1,9 +1,2 @@
 streamlit
-langchain
-langchain-community
-openai
 PyPDF2
-pymupdf
-pypdf
-docarray
-tiktoken
