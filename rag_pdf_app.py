@@ -2,7 +2,7 @@ import streamlit as st
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import FAISS
+from langchain.vectorstores import DocArrayInMemorySearch
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 import tempfile
@@ -30,8 +30,8 @@ if uploaded_file:
     # Embeddings
     embeddings = OpenAIEmbeddings(openai_api_key=os.environ["OPENAI_API_KEY"])
 
-    # Vectorstore using FAISS
-    vectorstore = FAISS.from_documents(docs, embedding=embeddings)
+    # In-memory vector store
+    vectorstore = DocArrayInMemorySearch.from_documents(docs, embedding=embeddings)
 
     # Retriever
     retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
